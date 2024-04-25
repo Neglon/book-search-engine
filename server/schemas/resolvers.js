@@ -8,3 +8,6 @@ const resolvers = {
 
 
     // Mutation for login, add user, save book, remove book
+};
+
+module.exports = resolvers;
