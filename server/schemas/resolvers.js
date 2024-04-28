@@ -17,17 +17,17 @@ const resolvers = {
 
     // Mutation for login, add user, save book, remove book
     Mutation: {
-        login: async (parent, { email, password }) => {
-            const user = await User.findOne({ email });
+        login: async (parent, args) => {
+            const user = await User.findOne({ email: args.email });
 
             if (!user) {
                 throw new Error("Incorrect email or password");
             }
 
-            const correctPw = await user.isCorrectPassword(password);
+            const correctPw = await user.isCorrectPassword(args.password);
 
             if (!correctPw) {
-                throw new Error("Incorrect email or password");
+                throw new Error("Incorrect password");
             }
 
             const token = signToken(user);
@@ -41,11 +41,11 @@ const resolvers = {
             return { token, user };
         },
 
-        saveBook: async (parent, { input }, context) => {
+        saveBook: async (parent, args, context) => {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
-                    { $addToSet: { savedBooks: input } },
+                    { $addToSet: { savedBooks: args.input } },
                     { new: true }
                 );
 
@@ -54,11 +54,11 @@ const resolvers = {
             throw new Error("You need to be logged in!");
         },
 
-        removeBook: async (parent, { bookId }, context) => {
+        removeBook: async (parent, args, context) => {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
-                    { $pull: { savedBooks: { bookId } } },
+                    { $pull: { savedBooks: { bookId: args.bookId } } },
                     { new: true }
                 );
 
